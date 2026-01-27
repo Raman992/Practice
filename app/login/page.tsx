@@ -6,7 +6,7 @@ import { useLoginMutation } from "@/store/services/authAPI";
 import { loginSuccess } from "@/store/authSlice";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import z from "zod";
+import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { FormInput } from "@/components/ui/form-input";
 
