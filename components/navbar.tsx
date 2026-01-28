@@ -6,24 +6,23 @@ import { useSelector, useDispatch } from "react-redux"
 import { RootState } from "@/store/store"
 import { logout } from "@/store/authSlice"
 import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo, useCallback } from "react"
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const user = useSelector((state: RootState) => state.auth.user);
-  
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push("/login");
-  };
+const handleLogout = useCallback(() => {
+  dispatch(logout());
+  router.push("/login");
+}, [dispatch, router]);
 
   // Don't render until mounted
   if (!mounted) {
@@ -104,10 +103,10 @@ const Navbar = () => {
         )}
       </nav>
       <p className="hidden md:block text-sm text-gray-500 dark:text-gray-400">
-        {isAuthenticated ? `Welcome ${user?.email || 'User'}` : 'You are not logged in'}
+        {isAuthenticated && user ? `Welcome ${user?.fullName || user.username}` : 'You are not logged in'}
       </p>
     </div>
   );
 }
 
-export default Navbar;
+export default memo(Navbar);

@@ -6,11 +6,12 @@ interface LoginRequest {
 }
 
 interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-  };
+  Token: string;
+  UserName: string;
+  FullName: string;
+  CustomerId: number;
+  Roles: string;
+  Message: string;
 }
 
 export const authApi = createApi({

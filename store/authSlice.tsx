@@ -5,8 +5,10 @@ interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
   user: {
-    id: string;
-    email: string;
+    id: number;  
+    username: string;  
+    fullName: string;
+    roles: string;
   } | null;
 }
 
@@ -35,10 +37,18 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginSuccess: (state, action: PayloadAction<{ token: string; user: { id: string; email: string } }>) => {
-      state.isAuthenticated = true;
-      state.token = action.payload.token;
-      state.user = action.payload.user;
+    loginSuccess: (state, action: PayloadAction<{
+    token: string;
+    user: {
+     id: number;
+      username: string;
+      fullName: string;
+      roles: string;
+    }
+  }>) => {
+  state.isAuthenticated = true;
+  state.token = action.payload.token;
+  state.user = action.payload.user;
       
       // LocalStorage
       if (typeof window !== 'undefined') {
@@ -60,19 +70,28 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(
-      authApi.endpoints.login.matchFulfilled,
-      (state, action) => {
-        state.isAuthenticated = true;
-        state.token = action.payload.token;
-        state.user = action.payload.user;
-        
+  builder.addMatcher(
+    authApi.endpoints.login.matchFulfilled,
+    (state, action) => {
+      state.isAuthenticated = true;
+      state.token = action.payload.Token;
+      state.user = {
+        id: action.payload.CustomerId,
+        username: action.payload.UserName,
+        fullName: action.payload.FullName,
+        roles: action.payload.Roles
+      };
         // LocalStorage
         if (typeof window !== 'undefined') {
           localStorage.setItem('auth', JSON.stringify({
             isAuthenticated: true,
-            token: action.payload.token,
-            user: action.payload.user
+            token: action.payload.Token,
+          user: {
+            id: action.payload.CustomerId,
+            username: action.payload.UserName,
+            fullName: action.payload.FullName,
+            roles: action.payload.Roles
+          }
           }));
         }
       }

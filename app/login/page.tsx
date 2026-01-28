@@ -49,8 +49,13 @@ export default function LoginPage() {
       console.log("Login success:", result);
 
       dispatch(loginSuccess({
-        token: result.token,
-        user: result.user
+        token: result.Token,
+        user: {
+          id: result.CustomerId,
+          username: result.UserName, 
+          fullName: result.FullName, 
+          roles: result.Roles 
+      }
       }));
 
       router.push("/dashboard");
