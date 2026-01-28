@@ -3,7 +3,7 @@
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetPostsQuery } from "@/store/services/placeholderAPI";
 import {
   ColumnDef,
@@ -27,19 +27,23 @@ export default function DashboardPage() {
     (state: RootState) => state.auth.isAuthenticated
   );
   const token = useSelector((state: RootState) => state.auth.token);
+  
+  // Add mounted state
+  const [mounted, setMounted] = useState(false);
 
   const { data = [], isLoading, error } = useGetPostsQuery(undefined, {
-    skip: !isAuthenticated,
+    skip: !isAuthenticated || !mounted, // Don't fetch until mounted
   });
 
   useEffect(() => {
+    setMounted(true);
+    
+    // Check authentication only after mounting
     if (!isAuthenticated) {
       if (typeof window !== 'undefined') {
         const savedAuth = localStorage.getItem('auth');
         if (!savedAuth) {
           router.push("/login");
-        } else {
-          console.log("User has saved auth, but Redux state not updated yet");
         }
       } else {
         router.push("/login");
@@ -88,10 +92,26 @@ export default function DashboardPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  // Show loading state until mounted
+  if (!mounted) {
+    return (
+      <div className="p-6 text-white">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-700 rounded w-1/4 mb-6"></div>
+          <div className="h-64 bg-gray-800 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Check auth after mount
   if (!isAuthenticated) {
     return (
       <div className="p-6 text-white">
-        <p>Checking authentication...</p>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-gray-400">Redirecting to login...</p>
+        </div>
       </div>
     );
   }
@@ -100,13 +120,11 @@ export default function DashboardPage() {
     <div className="p-6 text-white">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Posts</h1>
-        <div className="text-sm text-gray-400">
-          Welcome! Token: {token ? `${token.substring(0, 10)}...` : 'No token'}
-        </div>
       </div>
 
       {isLoading && (
         <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
           <p className="text-lg">Loading posts...</p>
         </div>
       )}
