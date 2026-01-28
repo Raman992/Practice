@@ -10,11 +10,26 @@ interface AuthState {
   } | null;
 }
 
-const initialState: AuthState = {
-  isAuthenticated: false,
-  token: null,
-  user: null,
+// Load localStorage first
+const loadAuthState = (): AuthState => {
+  if (typeof window !== 'undefined') {
+    const savedAuth = localStorage.getItem('auth');
+    if (savedAuth) {
+      try {
+        return JSON.parse(savedAuth);
+      } catch (error) {
+        console.error('Failed to parse auth from localStorage:', error);
+      }
+    }
+  }
+  return {
+    isAuthenticated: false,
+    token: null,
+    user: null,
+  };
 };
+
+const initialState: AuthState = loadAuthState();
 
 const authSlice = createSlice({
   name: "auth",
@@ -24,11 +39,24 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.token = action.payload.token;
       state.user = action.payload.user;
+      
+      // LocalStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('auth', JSON.stringify({
+          isAuthenticated: true,
+          token: action.payload.token,
+          user: action.payload.user
+        }));
+      }
     },
     logout: (state) => {
       state.isAuthenticated = false;
       state.token = null;
       state.user = null;
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth');
+      }
     },
   },
   extraReducers: (builder) => {
@@ -38,6 +66,15 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.token = action.payload.token;
         state.user = action.payload.user;
+        
+        // LocalStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('auth', JSON.stringify({
+            isAuthenticated: true,
+            token: action.payload.token,
+            user: action.payload.user
+          }));
+        }
       }
     );
   },

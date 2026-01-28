@@ -18,8 +18,15 @@ export const authApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://shop-api.hyhimal.com/gateway/auth/api/Login/",
     credentials: "include",
-    prepareHeaders: (headers) => {
+    prepareHeaders: (headers, { getState }) => {
+      // Get token from Redux state or localStorage
+      const token = (getState() as any)?.auth?.token || 
+                   (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('auth') || '{}')?.token : null);
+      
       headers.set("Content-Type", "application/json");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
       return headers;
     },
   }),
