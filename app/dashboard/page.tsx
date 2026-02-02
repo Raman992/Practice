@@ -29,7 +29,6 @@ export default function DashboardPage() {
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
-  const token = useSelector((state: RootState) => state.auth.token);
 
   // Add mounted state
   const [mounted, setMounted] = useState(false);
