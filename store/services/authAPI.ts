@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+const url = process.env.NEXT_PUBLIC_LOGIN_URL
+
 interface LoginRequest {
   Username: string;
   Password: string;
@@ -17,7 +19,7 @@ interface LoginResponse {
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://shop-api.hyhimal.com/gateway/auth/api/Login/",
+    baseUrl: url,
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
       // Get token from Redux state or localStorage
