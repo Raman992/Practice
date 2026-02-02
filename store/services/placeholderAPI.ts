@@ -7,9 +7,12 @@ export const jsonApi = createApi({
   }),
   endpoints: (builder) => ({
     getPosts: builder.query<any[], void>({
-      query: () => "posts",
+      query: () => "users",
+    }),
+    getUserById: builder.query<any, number>({
+      query: (id) => `users/${id}`,
     }),
   }),
 });
 
-export const { useGetPostsQuery } = jsonApi;
+export const { useGetPostsQuery, useGetUserByIdQuery } = jsonApi;

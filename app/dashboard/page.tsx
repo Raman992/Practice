@@ -13,11 +13,14 @@ import {
 } from "@tanstack/react-table";
 import { useDispatch } from "react-redux";
 import { logout } from "@/store/authSlice";
+import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Post = {
   id: number;
-  title: string;
-  body: string;
+  name: string;
+  email: string;
 };
 
 export default function DashboardPage() {
@@ -27,7 +30,7 @@ export default function DashboardPage() {
     (state: RootState) => state.auth.isAuthenticated
   );
   const token = useSelector((state: RootState) => state.auth.token);
-  
+
   // Add mounted state
   const [mounted, setMounted] = useState(false);
 
@@ -37,7 +40,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setMounted(true);
-    
+
     // Check authentication only after mounting
     if (!isAuthenticated) {
       if (typeof window !== 'undefined') {
@@ -53,12 +56,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (error) {
-      const isUnauthorized = 
+      const isUnauthorized =
         ('status' in error && error.status === 401) ||
         ('originalStatus' in error && error.originalStatus === 401) ||
-        (error && typeof error === 'object' && 'data' in error && 
-         (error.data as any)?.statusCode === 401);
-      
+        (error && typeof error === 'object' && 'data' in error &&
+          (error.data as any)?.statusCode === 401);
+
       if (isUnauthorized) {
         console.log("Token expired or invalid, logging out...");
         dispatch(logout());
@@ -75,12 +78,23 @@ export default function DashboardPage() {
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: "title",
-        header: "Title",
+        accessorKey: "name",
+        header: "Name",
       },
       {
-        accessorKey: "body",
-        header: "Body",
+        accessorKey: "email",
+        header: "Email",
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <Link
+            href={`/dashboard/users/${row.original.id}`}
+          >
+            View User
+          </Link>
+        ),
       },
     ],
     []
@@ -96,10 +110,7 @@ export default function DashboardPage() {
   if (!mounted) {
     return (
       <div className="p-6 text-white">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-700 rounded w-1/4 mb-6"></div>
-          <div className="h-64 bg-gray-800 rounded"></div>
-        </div>
+        <Spinner />
       </div>
     );
   }
@@ -110,7 +121,7 @@ export default function DashboardPage() {
       <div className="p-6 text-white">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-gray-400">Redirecting to login...</p>
+          <p className="text-gray-400"><Spinner />Redirecting to login...</p>
         </div>
       </div>
     );
@@ -125,7 +136,10 @@ export default function DashboardPage() {
       {isLoading && (
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-lg">Loading posts...</p>
+          <Button disabled size="sm">
+            <Spinner data-icon="inline-start" />
+            Loading Posts...
+          </Button>
         </div>
       )}
 
