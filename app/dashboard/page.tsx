@@ -1,9 +1,6 @@
 "use client";
 
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useGetPostsQuery } from "@/store/services/placeholderAPI";
 import {
   ColumnDef,
@@ -11,8 +8,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useDispatch } from "react-redux";
-import { logout } from "@/store/authSlice";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -24,57 +19,13 @@ type Post = {
 };
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const dispatch = useDispatch();
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
-
-  // Add mounted state
-  const [mounted, setMounted] = useState(false);
-
-  const { data = [], isLoading, error } = useGetPostsQuery(undefined, {
-    skip: !isAuthenticated || !mounted, // Don't fetch until mounted
-  });
-
-  useEffect(() => {
-    setMounted(true);
-
-    // Check authentication only after mounting
-    if (!isAuthenticated) {
-      if (typeof window !== 'undefined') {
-        const savedAuth = localStorage.getItem('auth');
-        if (!savedAuth) {
-          router.push("/login");
-        }
-      } else {
-        router.push("/login");
-      }
-    }
-  }, [isAuthenticated, router]);
-
-  useEffect(() => {
-    if (error) {
-      const isUnauthorized =
-        ('status' in error && error.status === 401) ||
-        ('originalStatus' in error && error.originalStatus === 401) ||
-        (error && typeof error === 'object' && 'data' in error &&
-          (error.data as any)?.statusCode === 401);
-
-      if (isUnauthorized) {
-        console.log("Token expired or invalid, logging out...");
-        dispatch(logout());
-        router.push("/login");
-      }
-    }
-  }, [error, dispatch, router]);
+  const { data = [], isLoading, error } = useGetPostsQuery();
 
   const columns = useMemo<ColumnDef<Post>[]>(
     () => [
       {
         accessorKey: "id",
         header: "ID",
-        cell: (info) => info.getValue(),
       },
       {
         accessorKey: "name",
@@ -90,6 +41,7 @@ export default function DashboardPage() {
         cell: ({ row }) => (
           <Link
             href={`/dashboard/users/${row.original.id}`}
+            className="text-blue-400 hover:underline"
           >
             View User
           </Link>
@@ -105,27 +57,6 @@ export default function DashboardPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // Show loading state until mounted
-  if (!mounted) {
-    return (
-      <div className="p-6 text-white">
-        <Spinner />
-      </div>
-    );
-  }
-
-  // Check auth after mount
-  if (!isAuthenticated) {
-    return (
-      <div className="p-6 text-white">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-gray-400"><Spinner />Redirecting to login...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 text-white">
       <div className="flex justify-between items-center mb-6">
@@ -134,9 +65,8 @@ export default function DashboardPage() {
 
       {isLoading && (
         <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <Button disabled size="sm">
-            <Spinner data-icon="inline-start" />
+          <Spinner />
+          <Button disabled size="sm" className="mt-4">
             Loading Posts...
           </Button>
         </div>
@@ -144,7 +74,10 @@ export default function DashboardPage() {
 
       {error && !isLoading && (
         <div className="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-4">
-          <p className="text-red-300">Error loading posts: {(error as any)?.data?.message || 'Unknown error'}</p>
+          <p className="text-red-300">
+            Error loading posts:{" "}
+            {(error as any)?.data?.message || "Unknown error"}
+          </p>
         </div>
       )}
 
@@ -153,6 +86,7 @@ export default function DashboardPage() {
           <div className="mb-4 text-sm text-gray-400">
             Showing {data.length} posts
           </div>
+
           <div className="overflow-x-auto border rounded-lg border-gray-700">
             <table className="w-full border-collapse">
               <thead className="bg-gray-800">
