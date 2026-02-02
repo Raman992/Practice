@@ -18,10 +18,17 @@ const Navbar = () => {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
+  const isActive = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname.startsWith("/dashboard");
+    }
+    return pathname === href;
+  };
+
   const linkClass = (href: string) =>
-    `transition ${pathname === href
+    `transition ${isActive(href)
       ? "text-black dark:text-white font-bold"
-      : "text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white "
+      : "text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white"
     }`;
 
   useEffect(() => {
