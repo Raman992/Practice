@@ -7,6 +7,8 @@ import { RootState } from "@/store/store"
 import { logout } from "@/store/authSlice"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, memo, useCallback } from "react"
+import { usePathname } from "next/navigation"
+
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -14,15 +16,22 @@ const Navbar = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const user = useSelector((state: RootState) => state.auth.user);
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+
+  const linkClass = (href: string) =>
+    `transition ${pathname === href
+      ? "text-black dark:text-white font-bold"
+      : "text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white "
+    }`;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-const handleLogout = useCallback(() => {
-  dispatch(logout());
-  router.push("/login");
-}, [dispatch, router]);
+  const handleLogout = useCallback(() => {
+    dispatch(logout());
+    router.push("/login");
+  }, [dispatch, router]);
 
   // Don't render until mounted
   if (!mounted) {
@@ -38,10 +47,7 @@ const handleLogout = useCallback(() => {
           />
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link
-            href="/"
-            className="text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition"
-          >
+          <Link href="/" className={linkClass("/")}>
             Home
           </Link>
         </nav>
@@ -64,33 +70,21 @@ const handleLogout = useCallback(() => {
         />
       </div>
       <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-        <Link
-          href="/"
-          className="text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition"
-        >
+        <Link href="/" className={linkClass("/")}>
           Home
         </Link>
         {!isAuthenticated ? (
           <>
-            <Link
-              href="/login"
-              className="text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition"
-            >
+            <Link href="/login" className={linkClass("/login")}>
               Login
             </Link>
-            <Link
-              href="/register"
-              className="text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition"
-            >
+            <Link href="/register" className={linkClass("/register")}>
               Register
             </Link>
           </>
         ) : (
           <>
-            <Link
-              href="/dashboard"
-              className="text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition"
-            >
+            <Link href="/dashboard" className={linkClass("/dashboard")}>
               Dashboard
             </Link>
             <button
