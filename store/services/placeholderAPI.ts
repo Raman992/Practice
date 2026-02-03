@@ -6,9 +6,16 @@ export const jsonApi = createApi({
     baseUrl: "https://jsonplaceholder.typicode.com/",
   }),
   endpoints: (builder) => ({
-    getPosts: builder.query<any[], void>({
-      query: () => "users",
-    }),
+    getPosts: builder.query<
+  { users: any[]; total: number },
+  void
+>({
+  query: () => "users",
+  transformResponse: (response: any[]) => ({
+    users: response,//metadata
+    total: response.length,
+  }),
+}),
     getUserById: builder.query<any, number>({
       query: (id) => `users/${id}`,
     }),

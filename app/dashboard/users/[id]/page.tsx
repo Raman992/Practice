@@ -1,18 +1,35 @@
 "use client";
 
-import { notFound, useParams } from "next/navigation";
-import { useGetUserByIdQuery } from "@/store/services/placeholderAPI";
+import { useParams, useRouter } from "next/navigation";
+import { useGetPostsQuery, useGetUserByIdQuery } from "@/store/services/placeholderAPI";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function UserDetailsPage() {
+  const router = useRouter();
   const params = useParams();
   const userId = Number(params.id);
+
+  const { total } = useGetPostsQuery(undefined, {
+  selectFromResult: ({ data }) => ({
+    total: data?.total ?? 0,
+  }),
+});
+
 
   const { data, isLoading, error } = useGetUserByIdQuery(userId, {
     skip: isNaN(userId),
   });
+
+  function nextUser() {
+    router.push(`/dashboard/users/${userId + 1}`);
+  }
+
+  function previousUser() {
+    router.push(`/dashboard/users/${userId - 1}`);
+  }
+
 
   if (isLoading) {
     return (
@@ -24,7 +41,10 @@ export default function UserDetailsPage() {
 
   if (error || !data) {
     return (
-     notFound()
+      <div className="p-6 text-white">
+        <p className="text-red-400 mb-4">Failed to load user details.</p>
+        <Button onClick={() => router.back()}>Go Back</Button>
+      </div>
     );
   }
 
@@ -61,6 +81,26 @@ export default function UserDetailsPage() {
           <p><span className="text-gray-400">Business:</span> {data.company.bs}</p>
         </div>
       </div>
+      <div className="flex justify-end space-x-2 mt-6">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={previousUser}
+          disabled={userId <= 1}
+        >
+          ←
+        </Button>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={nextUser}
+          disabled={userId >= total}
+        >
+          →
+        </Button>
+      </div>
+
     </div>
   );
 }
