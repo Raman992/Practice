@@ -1,13 +1,12 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { useGetUserByIdQuery } from "@/store/services/placeholderAPI";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function UserDetailsPage() {
-  const router = useRouter();
   const params = useParams();
   const userId = Number(params.id);
 
@@ -25,10 +24,7 @@ export default function UserDetailsPage() {
 
   if (error || !data) {
     return (
-      <div className="p-6 text-white">
-        <p className="text-red-400 mb-4">Failed to load user details.</p>
-        <Button onClick={() => router.back()}>Go Back</Button>
-      </div>
+     notFound()
     );
   }
 
