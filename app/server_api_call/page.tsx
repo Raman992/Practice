@@ -16,7 +16,7 @@ export default async function page() {
     const {data} = await postAPI()
   return (
     <div className="text-white">
-        {data.message}
+      {data ? <pre>{data.message}</pre> : "Loading..."}
     </div>
   )
 }

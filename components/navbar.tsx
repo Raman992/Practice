@@ -8,6 +8,7 @@ import { logout } from "@/store/authSlice"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, memo, useCallback } from "react"
 import { usePathname } from "next/navigation"
+import { Button } from "./ui/button";
 
 
 const Navbar = () => {
@@ -94,12 +95,12 @@ const Navbar = () => {
             <Link href="/dashboard" className={linkClass("/dashboard")}>
               Dashboard
             </Link>
-            <button
+            <Button
               onClick={handleLogout}
-              className="text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition"
+              variant={"destructive"}
             >
               Logout
-            </button>
+            </Button>
           </>
         )}
       </nav>

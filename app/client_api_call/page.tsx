@@ -18,7 +18,7 @@ export default function Page() {
       })
 
       const result = await res.json()
-      setData(result)
+      setData(result.message)
     }
 
     postAPI()
@@ -26,7 +26,7 @@ export default function Page() {
 
   return (
     <div className="text-white">
-      {data ? <pre>{JSON.stringify(data)}</pre> : "Loading..."}
+      {data ? <pre>{data}</pre> : "Loading..."}
     </div>
   )
 }

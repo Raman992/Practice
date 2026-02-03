@@ -7,6 +7,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,13 @@ export default function DashboardPage() {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 5,
+        pageIndex: 0,
+      }
+    }
   });
 
   return (
@@ -128,6 +136,33 @@ export default function DashboardPage() {
                 ))}
               </tbody>
             </table>
+            <div className="flex items-center justify-between m-4 px-2">
+              <span className="text-sm text-gray-400">
+                Page {table.getState().pagination.pageIndex + 1} of{" "}
+                {table.getPageCount()}
+              </span>
+
+              <div className="space-x-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  {"<"}
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  {">"}
+                </Button>
+              </div>
+            </div>
+
           </div>
         </>
       )}
