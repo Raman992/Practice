@@ -8,10 +8,16 @@ import {
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+
+type PostsResponse = {
+  users: Post[];
+  total: number;
+};
 
 type Post = {
   id: number;
@@ -20,9 +26,11 @@ type Post = {
 };
 
 export default function DashboardPage() {
-  const { data = [], isLoading, error } = useGetPostsQuery();
+  const { data, isLoading, error } = useGetPostsQuery();
+  const posts = data?.users ?? [];
 
-  const columns = useMemo<ColumnDef<Post>[]>(
+
+  const columns = useMemo<ColumnDef<PostsResponse, void>[]>(
     () => [
       {
         accessorKey: "id",
@@ -31,31 +39,34 @@ export default function DashboardPage() {
       {
         accessorKey: "name",
         header: "Name",
+        filterFn: "includesString",
       },
       {
         accessorKey: "email",
         header: "Email",
       },
       {
+        accessorKey: "id",
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => (
+        cell: ({ getValue }) => (
           <Link
-            href={`/dashboard/users/${row.original.id}`}
+            href={`/dashboard/users/${getValue()}`}
             className="text-blue-400 hover:underline"
           >
             View User
           </Link>
         ),
-      },
+      }
     ],
     []
   );
 
   const table = useReactTable({
-    data,
+    data: posts,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
       pagination: {
@@ -92,8 +103,19 @@ export default function DashboardPage() {
       {!isLoading && !error && (
         <>
           <div className="mb-4 text-sm text-gray-400">
-            Showing {data.length} posts
+            Showing {table.getFilteredRowModel().rows.length} posts
           </div>
+
+          <input
+            placeholder="Search name..."
+            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+            onChange={(e) => {
+              table.getColumn("name")?.setFilterValue(e.target.value);
+              table.setPageIndex(0);
+            }}
+
+            className="border p-2 mb-3"
+          />
 
           <div className="overflow-x-auto border rounded-lg border-gray-700">
             <table className="w-full border-collapse">
