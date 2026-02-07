@@ -95,6 +95,9 @@ const Navbar = () => {
             <Link href="/dashboard" className={linkClass("/dashboard")}>
               Dashboard
             </Link>
+            <Link href="/counter" className={linkClass("/counter")}>
+              Counter
+            </Link>
             <Button
               onClick={handleLogout}
               variant={"destructive"}

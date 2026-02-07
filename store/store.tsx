@@ -2,13 +2,16 @@ import { configureStore } from "@reduxjs/toolkit";
 import { authApi } from "./services/authAPI";
 import authReducer from "./authSlice";
 import { jsonApi } from "./services/placeholderAPI";
+import counterReducer from "./counterSlice"
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    counter: counterReducer,
     [authApi.reducerPath]: authApi.reducer,
     [jsonApi.reducerPath]: jsonApi.reducer,
   },
+  devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
